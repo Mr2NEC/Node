@@ -13,46 +13,60 @@ app.get('/message', (req, res) => {
     res.end(JSON.stringify(messages));
 });
 
-function getMessages(messageId) {
-    let newMessage;
-    console.log(messageId);
+const func = {
+    getMessages: (messageId) => {
+        let newMessage;
 
-    if (messageId === 0) {
-        newMessage = messages;
-        console.log(newMessage);
+        if (messageId === 0) {
+            newMessage = messages;
+            return { data: newMessage, nextMessageId: messages.length };
+        }
+
+        newMessage = messages.slice(messageId);
         return { data: newMessage, nextMessageId: messages.length };
-    }
+    },
 
-    newMessage = messages.slice(messageId);
-    console.log(newMessage);
-    return { data: newMessage, nextMessageId: messages.length };
-}
-
-function addMessage(message) {
-    let newMessage = {
-        nick: message.nick,
-        message: message.message,
-        timestamp: new Date().getTime(),
-    };
-    messages.push(newMessage);
-    return newMessage.timestamp;
-}
+    addMessage: ({ nick, message }) => {
+        let newMessage = {
+            nick: nick,
+            message: message,
+            timestamp: new Date().getTime(),
+        };
+        messages.push(newMessage);
+        return newMessage.timestamp;
+    },
+};
 
 app.post('/message', (req, res) => {
-    console.log(req.body);
-
     switch (req.body.func) {
         case 'getMessages':
-            const getMessagesResult = getMessages(req.body.messageId);
+            const getMessagesResult = func.getMessages(req.body.messageId);
             res.status(201).end(JSON.stringify(getMessagesResult));
             break;
         case 'addMessage':
-            const addMessageResult = addMessage(req.body);
+            const addMessageResult = func.addMessage(req.body);
             res.status(201).end(JSON.stringify(addMessageResult));
             break;
         default:
             break;
     }
+});
+
+app.put('/message/:timestamp', (req, res) => {
+    const { timestamp: skip, ...newMessage } = { ...req.body };
+    const { timestamp } = req.params;
+
+    const oldMsg = messages.find(
+        ({ timestamp: oldMsgtimestamp }) => oldMsgtimestamp === timestamp
+    );
+
+    if (!oldMsg) {
+        res.status(404).end(`{error: Message ID: ${timestamp} Not Found}`);
+    }
+
+    Object.assign(oldMsg, newMessage);
+
+    res.status(204).end(JSON.stringify());
 });
 
 app.get('/', (req, res) => {

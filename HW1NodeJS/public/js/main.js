@@ -40,6 +40,23 @@ async function jsonPost(url, data) {
 
     throw new Error(response.status);
 }
+async function putMessage(url, { timestamp, body }) {
+    let response = await fetch(url + `/${timestamp}`, {
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        method: 'PUT',
+        body: JSON.stringify(body),
+    });
+
+    if (response.status == 204) {
+        let json = await response.json();
+        return json;
+    }
+
+    throw new Error(response.status);
+}
 
 async function getMessages() {
     try {
@@ -55,9 +72,13 @@ async function getMessages() {
         console.log(err);
     }
 }
-
 function displayMessage(objElem) {
     let divMessage = document.createElement('div');
+    let buttonMessage = document.createElement('button');
+    buttonMessage.innerText = 'Change';
+    buttonMessage.addEventListener('click', () =>
+        changeMessage(input1Elem.value, input2Elem.value, objElem.timestamp)
+    );
     divMessage.style =
         'border: 1px solid black; padding: 10px; background: #00FFFF; display: flex; align-items: center; flex-direction: column;';
     divMessage.innerHTML = `<div style = 'color: red;'>Nick: ${
@@ -67,6 +88,7 @@ function displayMessage(objElem) {
     }</div><div style = 'color: black;'>Timestamp: ${timeConverter(
         objElem.timestamp
     )}</div>`;
+    divMessage.appendChild(buttonMessage);
     let firstElem = divElem.firstChild;
     divElem.insertBefore(divMessage, firstElem);
 }
@@ -114,7 +136,18 @@ async function sendMessage(nick, message) {
             message: message,
         });
     } catch (err) {
-        alert(err);
+        console.log(err);
+    }
+}
+
+async function changeMessage(nick, message, timestamp) {
+    try {
+        putMessage(URL, {
+            timestamp: timestamp,
+            body: { nick: nick, message: message },
+        });
+    } catch (err) {
+        console.log(err);
     }
 }
 
