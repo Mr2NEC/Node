@@ -36,14 +36,14 @@ app.post('/message', (req, res) => {
             const result = getMessages(req.body.messageId);
             res.status(201).end(JSON.stringify(result));
             break;
-        case 'getMessages':
-
+        case 'addMessage':
+            messages.push(newMessage);
+            const newMessage = { nick:req.body.nick,message: req.body.message, timestamp: new Date().getTime() };
+            res.status(201).end(JSON.stringify(newMessage));
+            break;
         default:
             break;
     }
-    // messages.push(newMessage);
-    // const newMessage = { ...req.body, timestamp: new Date().getTime() };
-    // res.status(201).end(JSON.stringify(newMessage));
 });
 
 app.get('/', (req, res) => {
