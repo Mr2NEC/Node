@@ -33,7 +33,7 @@ async function jsonPost(url, data) {
         body: JSON.stringify(data),
     });
 
-    if (response.status == 201) {
+    if (response.status == 200 || response.status == 201) {
         let json = await response.json();
         return json;
     }
