@@ -40,6 +40,7 @@ async function jsonPost(url, data) {
 
     throw new Error(response.status);
 }
+
 async function putMessage(url, { timestamp, body }) {
     let response = await fetch(url + `/${timestamp}`, {
         headers: {
@@ -51,8 +52,13 @@ async function putMessage(url, { timestamp, body }) {
     });
 
     if (response.status == 204) {
-        let json = await response.json();
-        return json;
+      let newMessage = document.getElementById(timestamp)
+      let itemList = newMessage.childNodes;
+      itemList.forEach((item) => {
+        item.className === 'textRed' ?item.innerText="Nick: " + body.nick: null;
+        item.className=== 'textGreen'?item.innerText="Message: " + body.message: null;
+    })
+       return
     }
 
     throw new Error(response.status);
@@ -81,11 +87,12 @@ function displayMessage(objElem) {
     );
     divMessage.style =
         'border: 1px solid black; padding: 10px; background: #00FFFF; display: flex; align-items: center; flex-direction: column;';
-    divMessage.innerHTML = `<div style = 'color: red;'>Nick: ${
+    divMessage.id =objElem.timestamp
+    divMessage.innerHTML = `<div class='textRed'>Nick: ${
         objElem.nick
-    }</div><div style = 'color: green;'>Message: ${
+    }</div><div class='textGreen'>Message: ${
         objElem.message
-    }</div><div style = 'color: black;'>Timestamp: ${timeConverter(
+    }</div><div class='textBlack'>Timestamp: ${timeConverter(
         objElem.timestamp
     )}</div>`;
     divMessage.appendChild(buttonMessage);

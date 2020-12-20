@@ -53,20 +53,22 @@ app.post('/message', (req, res) => {
 });
 
 app.put('/message/:timestamp', (req, res) => {
+
     const { timestamp: skip, ...newMessage } = { ...req.body };
     const { timestamp } = req.params;
 
     const oldMsg = messages.find(
-        ({ timestamp: oldMsgtimestamp }) => oldMsgtimestamp === timestamp
+        ({ timestamp: oldMsgtimestamp }) => oldMsgtimestamp === +timestamp
     );
 
     if (!oldMsg) {
-        res.status(404).end(`{error: Message ID: ${timestamp} Not Found}`);
+        res.status(404).end(`{"error": "Message ID: ${timestamp} Not Found"}`);
+        return
     }
 
     Object.assign(oldMsg, newMessage);
 
-    res.status(204).end(JSON.stringify());
+    res.status(204).end(JSON.stringify(oldMsg));
 });
 
 app.get('/', (req, res) => {
